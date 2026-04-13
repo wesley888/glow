@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <!-- Spring Boot 4.0 requires JDK 21+; use 3.4.4 if 4.0 is unavailable in your env -->
+        <version>3.4.4</version>
+        <relativePath/>
+    </parent>
+
+    <groupId>com.glow</groupId>
+    <artifactId>glow</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <name>Glow</name>
+    <description>Spring AI Core Features Practice — Chat / Prompt / RAG / Tools / Agent / Multimodal</description>
+
+    <properties>
+        <java.version>21</java.version>
+        <spring-ai.version>1.0.0</spring-ai.version>
+    </properties>
+
+    <!-- ===== Spring AI BOM ===== -->
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.ai</groupId>
+                <artifactId>spring-ai-bom</artifactId>
+                <version>${spring-ai.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <dependencies>
+
+        <!-- ===== Web ===== -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <!-- Reactor Core — needed for Flux streaming in Spring MVC -->
+        <dependency>
+            <groupId>io.projectreactor</groupId>
+            <artifactId>reactor-core</artifactId>
+        </dependency>
+
+        <!-- ===== Module 1 & 2 & 3 & 4 & 6 & 7 & 8 : Chat / Prompt / Output / Memory / Tools / Advisor / Agent ===== -->
+        <!-- Primary model: OpenAI (GPT-4o, DALL-E, Whisper, TTS) -->
+        <dependency>
+            <groupId>org.springframework.ai</groupId>
+            <artifactId>spring-ai-openai-spring-boot-starter</artifactId>
+        </dependency>
+
+        <!-- Optional: Anthropic Claude — uncomment to enable -->
+        <!--
+        <dependency>
+            <groupId>org.springframework.ai</groupId>
+            <artifactId>spring-ai-anthropic-spring-boot-starter</artifactId>
+        </dependency>
+        -->
+
+        <!-- Optional: Ollama (local LLM) — uncomment to enable -->
+        <!--
+        <dependency>
+            <groupId>org.springframework.ai</groupId>
+            <artifactId>spring-ai-ollama-spring-boot-starter</artifactId>
+        </dependency>
+        -->
+
+        <!-- ===== Module 5: RAG — Document Readers ===== -->
+        <!-- Tika reader: supports PDF, Word, Excel, HTML, etc. -->
+        <dependency>
+            <groupId>org.springframework.ai</groupId>
+            <artifactId>spring-ai-tika-document-reader</artifactId>
+        </dependency>
+
+        <!-- ===== Module 5: RAG — Vector Store ===== -->
+        <!-- Default: SimpleVectorStore (in-memory, no DB needed for dev) is auto-available via spring-ai-core -->
+
+        <!-- Production option: PgVector — uncomment when PostgreSQL + pgvector extension is ready -->
+        <!--
+        <dependency>
+            <groupId>org.springframework.ai</groupId>
+            <artifactId>spring-ai-pgvector-store-spring-boot-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-jdbc</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        -->
+
+        <!-- ===== Module 10: MCP ===== -->
+        <!-- MCP Client — uncomment when MCP server is configured -->
+        <!--
+        <dependency>
+            <groupId>org.springframework.ai</groupId>
+            <artifactId>spring-ai-mcp-client-spring-boot-starter</artifactId>
+        </dependency>
+        -->
+
+        <!-- ===== Utils ===== -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+
+        <!-- ===== Test ===== -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                        </exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <repositories>
+        <repository>
+            <id>spring-milestones</id>
+            <name>Spring Milestones</name>
+            <url>https://repo.spring.io/milestone</url>
+        </repository>
+        <repository>
+            <id>spring-snapshots</id>
+            <name>Spring Snapshots</name>
+            <url>https://repo.spring.io/snapshot</url>
+            <snapshots><enabled>true</enabled></snapshots>
+        </repository>
+    </repositories>
+
+</project>

@@ -1,0 +1,84 @@
+spring:
+  application:
+    name: glow
+
+  # ===== Module 1/2/3/4/6/7/8/9: OpenAI =====
+  ai:
+    openai:
+      api-key: ${OPENAI_API_KEY:sk-placeholder}
+      chat:
+        options:
+          model: gpt-4o
+          temperature: 0.7
+          max-tokens: 2048
+      image:
+        options:
+          model: dall-e-3
+          size: 1024x1024
+          quality: standard
+          response-format: url
+      audio:
+        transcription:
+          options:
+            model: whisper-1
+            language: zh
+        speech:
+          options:
+            model: tts-1
+            voice: alloy
+
+    # ===== Optional: Anthropic Claude =====
+    # anthropic:
+    #   api-key: ${ANTHROPIC_API_KEY:}
+    #   chat:
+    #     options:
+    #       model: claude-3-5-sonnet-20241022
+
+    # ===== Optional: Ollama (local) =====
+    # ollama:
+    #   base-url: http://localhost:11434
+    #   chat:
+    #     options:
+    #       model: llama3.2
+
+    # ===== Module 5: RAG — PgVector (uncomment for production) =====
+    # vectorstore:
+    #   pgvector:
+    #     index-type: hnsw
+    #     distance-type: cosine_distance
+    #     dimensions: 1536
+    #     initialize-schema: true
+
+    # ===== Module 10: MCP Client (uncomment when server ready) =====
+    # mcp:
+    #   client:
+    #     enabled: true
+    #     sse:
+    #       connections:
+    #         filesystem-server:
+    #           url: http://localhost:3001/sse
+
+# ===== Glow custom config =====
+glow:
+  chat:
+    memory:
+      window-size: 20       # how many messages to keep in context
+  rag:
+    top-k: 5                # top-K documents to retrieve
+    similarity-threshold: 0.7
+  safety:
+    blocked-keywords: "bomb,weapon,hack,exploit"
+
+server:
+  port: 8080
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+
+logging:
+  level:
+    com.glow: DEBUG
+    org.springframework.ai: INFO

@@ -1,0 +1,28 @@
+# Maven
+target/
+*.class
+*.jar
+*.war
+
+# IDE
+.idea/
+*.iml
+.vscode/
+.eclipse/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# Spring Boot
+*.log
+logs/
+application-local.yml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Sensitive
+*.env
+.env
