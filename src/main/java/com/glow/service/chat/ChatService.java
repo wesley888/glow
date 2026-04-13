@@ -7,28 +7,27 @@ import reactor.core.publisher.Flux;
 /**
  * Module 1 — Basic Chat + Streaming.
  * <p>
- * Uses the pre-configured primary {@link ChatClient} which already has:
- * <ul>
- *   <li>Default system prompt (chat-system.st)</li>
- *   <li>Memory advisor (conversation history)</li>
- *   <li>Logging + Safety advisors</li>
- * </ul>
+ * Uses {@link ChatClientRouter} to select the appropriate model at runtime.
+ * Pass {@code model} = "openai" / "kimi" / "deepseek" to switch providers.
+ * Defaults to OpenAI when model is null or blank.
  */
 @Service
 public class ChatService {
 
-    private final ChatClient chatClient;
+    private final ChatClientRouter router;
 
-    public ChatService(ChatClient chatClient) {
-        this.chatClient = chatClient;
+    public ChatService(ChatClientRouter router) {
+        this.router = router;
     }
 
     /**
-     * Synchronous single-turn chat.
-     * The memory advisor automatically injects previous turns for the given sessionId.
+     * Synchronous chat with conversation memory.
+     *
+     * @param model     provider name: "openai" | "kimi" | "deepseek" (null → OpenAI)
+     * @param sessionId conversation ID for memory isolation
      */
-    public String chat(String message, String sessionId) {
-        return chatClient.prompt()
+    public String chat(String message, String sessionId, String model) {
+        return router.route(model).prompt()
                 .user(message)
                 .advisors(a -> a.param("conversationId", sessionId))
                 .call()
@@ -37,10 +36,9 @@ public class ChatService {
 
     /**
      * Streaming chat — returns a {@link Flux} of token chunks.
-     * Controller should produce {@code text/event-stream}.
      */
-    public Flux<String> chatStream(String message, String sessionId) {
-        return chatClient.prompt()
+    public Flux<String> chatStream(String message, String sessionId, String model) {
+        return router.route(model).prompt()
                 .user(message)
                 .advisors(a -> a.param("conversationId", sessionId))
                 .stream()
@@ -48,11 +46,10 @@ public class ChatService {
     }
 
     /**
-     * Stateless one-shot chat with a custom system prompt.
-     * No memory or advisors — useful for isolated single-turn tasks.
+     * Stateless one-shot chat with a custom system prompt (no memory).
      */
-    public String chatWithSystem(String systemPrompt, String userMessage) {
-        return chatClient.prompt()
+    public String chatWithSystem(String systemPrompt, String userMessage, String model) {
+        return router.route(model).prompt()
                 .system(systemPrompt)
                 .user(userMessage)
                 .call()

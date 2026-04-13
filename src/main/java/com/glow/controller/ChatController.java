@@ -26,10 +26,14 @@ public class ChatController {
         this.chatService = chatService;
     }
 
-    /** Synchronous chat with conversation memory. */
+    /**
+     * Synchronous chat with conversation memory.
+     * Request body example:
+     * <pre>{"message":"你好","sessionId":"s1","model":"kimi"}</pre>
+     */
     @PostMapping
     public String chat(@RequestBody ChatRequest request) {
-        return chatService.chat(request.message(), request.sessionId());
+        return chatService.chat(request.message(), request.sessionId(), request.model());
     }
 
     /**
@@ -38,13 +42,20 @@ public class ChatController {
      */
     @PostMapping(value = "/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<String> chatStream(@RequestBody ChatRequest request) {
-        return chatService.chatStream(request.message(), request.sessionId());
+        return chatService.chatStream(request.message(), request.sessionId(), request.model());
     }
 
     /** One-shot chat with a caller-specified system prompt (no memory). */
     @PostMapping("/with-system")
     public String chatWithSystem(@RequestParam String system,
-                                 @RequestParam String message) {
-        return chatService.chatWithSystem(system, message);
+                                 @RequestParam String message,
+                                 @RequestParam(defaultValue = "openai") String model) {
+        return chatService.chatWithSystem(system, message, model);
+    }
+
+    /** List all supported model providers. */
+    @GetMapping("/models")
+    public java.util.List<String> listModels() {
+        return java.util.List.of("openai", "kimi", "deepseek");
     }
 }

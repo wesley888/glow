@@ -60,6 +60,16 @@ spring:
 
 # ===== Glow custom config =====
 glow:
+  # ===== Multi-model providers =====
+  models:
+    kimi:
+      api-key: ${KIMI_API_KEY:}
+      base-url: https://api.moonshot.cn/v1
+      model: moonshot-v1-8k          # options: moonshot-v1-8k / moonshot-v1-32k / moonshot-v1-128k
+    deepseek:
+      api-key: ${DEEPSEEK_API_KEY:}
+      base-url: https://api.deepseek.com
+      model: deepseek-chat
   chat:
     memory:
       window-size: 20       # how many messages to keep in context
