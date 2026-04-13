@@ -1,17 +1,17 @@
 package com.glow.service.multimodal;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.ai.audio.transcription.AudioTranscriptionPrompt;
+import org.springframework.ai.audio.transcription.AudioTranscriptionResponse;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.image.ImageModel;
 import org.springframework.ai.image.ImagePrompt;
 import org.springframework.ai.image.ImageResponse;
+import org.springframework.ai.openai.OpenAiAudioSpeechModel;
+import org.springframework.ai.openai.OpenAiAudioTranscriptionModel;
 import org.springframework.ai.openai.OpenAiImageOptions;
-import org.springframework.ai.openai.audio.speech.OpenAiAudioSpeechModel;
 import org.springframework.ai.openai.audio.speech.SpeechPrompt;
 import org.springframework.ai.openai.audio.speech.SpeechResponse;
-import org.springframework.ai.openai.audio.transcription.AudioTranscriptionPrompt;
-import org.springframework.ai.openai.audio.transcription.AudioTranscriptionResponse;
-import org.springframework.ai.openai.audio.transcription.OpenAiAudioTranscriptionModel;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
@@ -52,9 +52,6 @@ public class MultimodalService {
 
     // ===== 1. Vision — Image Understanding =====
 
-    /**
-     * Describe an uploaded image using GPT-4o vision.
-     */
     public String describeImage(MultipartFile imageFile) throws IOException {
         log.info("[VISION] Describing image: {}", imageFile.getOriginalFilename());
         Resource imageResource = new ByteArrayResource(imageFile.getBytes());
@@ -69,9 +66,6 @@ public class MultimodalService {
                 .content();
     }
 
-    /**
-     * Ask a specific question about an uploaded image.
-     */
     public String analyzeImage(MultipartFile imageFile, String question) throws IOException {
         Resource imageResource = new ByteArrayResource(imageFile.getBytes());
         String mimeType = imageFile.getContentType() != null
@@ -87,17 +81,20 @@ public class MultimodalService {
 
     // ===== 2. Image Generation — DALL-E 3 =====
 
-    /**
-     * Generate an image from a text description. Returns the image URL.
-     */
     public String generateImage(String prompt, String size, String quality) {
         log.info("[IMAGE-GEN] Prompt: {}", prompt);
+        // Parse "WIDTHxHEIGHT" string (e.g. "1024x1024") into separate width/height ints
+        String[] dims = size.split("x");
+        int width  = dims.length == 2 ? Integer.parseInt(dims[0]) : 1024;
+        int height = dims.length == 2 ? Integer.parseInt(dims[1]) : 1024;
+
         ImageResponse response = imageModel.call(
                 new ImagePrompt(prompt,
                         OpenAiImageOptions.builder()
                                 .model("dall-e-3")
-                                .size(size)       // "1024x1024", "1792x1024", "1024x1792"
-                                .quality(quality) // "standard" or "hd"
+                                .width(width)
+                                .height(height)
+                                .quality(quality)
                                 .N(1)
                                 .build())
         );
@@ -108,9 +105,6 @@ public class MultimodalService {
 
     // ===== 3. Speech-to-Text — Whisper =====
 
-    /**
-     * Transcribe an uploaded audio file to text.
-     */
     public String transcribeAudio(MultipartFile audioFile) throws IOException {
         log.info("[STT] Transcribing audio: {}", audioFile.getOriginalFilename());
         Resource audioResource = new ByteArrayResource(audioFile.getBytes()) {
@@ -127,9 +121,6 @@ public class MultimodalService {
 
     // ===== 4. Text-to-Speech =====
 
-    /**
-     * Convert text to speech audio. Returns raw MP3 bytes.
-     */
     public byte[] synthesizeSpeech(String text) {
         log.info("[TTS] Synthesizing speech for: {}", truncate(text));
         SpeechResponse response = speechModel.call(new SpeechPrompt(text));

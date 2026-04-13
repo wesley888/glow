@@ -94,7 +94,7 @@ public class AgentService {
                     new Prompt(messages,
                             ToolCallingChatOptions.builder()
                                     .toolCallbacks(
-                                            org.springframework.ai.tool.ToolCallbacks.from(
+                                            org.springframework.ai.support.ToolCallbacks.from(
                                                     weatherTools, dateTimeTools, calculatorTools))
                                     .build())
             );

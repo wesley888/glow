@@ -1,26 +1,24 @@
 package com.glow.advisor;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.ai.chat.client.advisor.api.AdvisedRequest;
-import org.springframework.ai.chat.client.advisor.api.AdvisedResponse;
-import org.springframework.ai.chat.client.advisor.api.CallAroundAdvisor;
-import org.springframework.ai.chat.client.advisor.api.CallAroundAdvisorChain;
-import org.springframework.ai.chat.client.advisor.api.StreamAroundAdvisor;
-import org.springframework.ai.chat.client.advisor.api.StreamAroundAdvisorChain;
+import org.springframework.ai.chat.client.ChatClientRequest;
+import org.springframework.ai.chat.client.ChatClientResponse;
+import org.springframework.ai.chat.client.advisor.api.CallAdvisor;
+import org.springframework.ai.chat.client.advisor.api.CallAdvisorChain;
+import org.springframework.ai.chat.client.advisor.api.StreamAdvisor;
+import org.springframework.ai.chat.client.advisor.api.StreamAdvisorChain;
 import org.springframework.core.Ordered;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 
 /**
  * Module 7 — Logging Advisor.
- * <p>
- * Intercepts every chat request/response (both sync and streaming)
- * and logs the user input, model used, and response duration.
- * Implements both {@link CallAroundAdvisor} and {@link StreamAroundAdvisor}.
+ * Logs request start and elapsed time for both sync and streaming calls.
+ * Implements {@link CallAdvisor} and {@link StreamAdvisor} (Spring AI 1.0.0 GA API).
  */
 @Slf4j
 @Component
-public class LoggingAdvisor implements CallAroundAdvisor, StreamAroundAdvisor {
+public class LoggingAdvisor implements CallAdvisor, StreamAdvisor {
 
     @Override
     public String getName() {
@@ -29,51 +27,23 @@ public class LoggingAdvisor implements CallAroundAdvisor, StreamAroundAdvisor {
 
     @Override
     public int getOrder() {
-        return Ordered.LOWEST_PRECEDENCE; // runs last so it wraps everything
+        return Ordered.LOWEST_PRECEDENCE;
     }
 
-    // ===== Sync =====
-
     @Override
-    public AdvisedResponse aroundCall(AdvisedRequest request, CallAroundAdvisorChain chain) {
+    public ChatClientResponse adviseCall(ChatClientRequest request, CallAdvisorChain chain) {
         long start = System.currentTimeMillis();
-        log.debug("[CHAT-REQ] user=\"{}\"", truncate(request.userText()));
-
-        AdvisedResponse response = chain.nextAroundCall(request);
-
-        long elapsed = System.currentTimeMillis() - start;
-        String content = extractContent(response);
-        log.debug("[CHAT-RSP] elapsed={}ms content=\"{}\"", elapsed, truncate(content));
-
+        log.debug("[CHAT-REQ] call started");
+        ChatClientResponse response = chain.nextCall(request);
+        log.debug("[CHAT-RSP] elapsed={}ms", System.currentTimeMillis() - start);
         return response;
     }
 
-    // ===== Streaming =====
-
     @Override
-    public Flux<AdvisedResponse> aroundStream(AdvisedRequest request, StreamAroundAdvisorChain chain) {
-        log.debug("[STREAM-REQ] user=\"{}\"", truncate(request.userText()));
+    public Flux<ChatClientResponse> adviseStream(ChatClientRequest request, StreamAdvisorChain chain) {
         long start = System.currentTimeMillis();
-
-        return chain.nextAroundStream(request)
-                .doOnComplete(() -> {
-                    long elapsed = System.currentTimeMillis() - start;
-                    log.debug("[STREAM-RSP] completed in {}ms", elapsed);
-                });
-    }
-
-    // ===== Helpers =====
-
-    private String extractContent(AdvisedResponse response) {
-        try {
-            return response.response().getResult().getOutput().getText();
-        } catch (Exception e) {
-            return "(unable to extract content)";
-        }
-    }
-
-    private String truncate(String text) {
-        if (text == null) return "";
-        return text.length() > 120 ? text.substring(0, 120) + "..." : text;
+        log.debug("[STREAM-REQ] stream started");
+        return chain.nextStream(request)
+                .doOnComplete(() -> log.debug("[STREAM-RSP] completed in {}ms", System.currentTimeMillis() - start));
     }
 }

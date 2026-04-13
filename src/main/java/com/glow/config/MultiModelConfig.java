@@ -1,9 +1,9 @@
 package com.glow.config;
 
 import com.glow.advisor.LoggingAdvisor;
-import com.glow.advisor.SafetyAdvisor;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
+import org.springframework.ai.chat.client.advisor.SafeGuardAdvisor;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.openai.OpenAiChatModel;
 import org.springframework.ai.openai.OpenAiChatOptions;
@@ -44,7 +44,7 @@ public class MultiModelConfig {
             @Value("${glow.models.kimi.base-url}") String baseUrl,
             @Value("${glow.models.kimi.model}") String model,
             ChatMemory chatMemory,
-            SafetyAdvisor safetyAdvisor,
+            SafeGuardAdvisor safeGuardAdvisor,
             LoggingAdvisor loggingAdvisor) {
 
         OpenAiApi kimiApi = OpenAiApi.builder()
@@ -63,7 +63,7 @@ public class MultiModelConfig {
         return ChatClient.builder(kimiModel)
                 .defaultSystem(systemPromptResource)
                 .defaultAdvisors(
-                        safetyAdvisor,
+                        safeGuardAdvisor,
                         MessageChatMemoryAdvisor.builder(chatMemory).build(),
                         loggingAdvisor)
                 .build();
@@ -78,7 +78,7 @@ public class MultiModelConfig {
             @Value("${glow.models.deepseek.base-url}") String baseUrl,
             @Value("${glow.models.deepseek.model}") String model,
             ChatMemory chatMemory,
-            SafetyAdvisor safetyAdvisor,
+            SafeGuardAdvisor safeGuardAdvisor,
             LoggingAdvisor loggingAdvisor) {
 
         OpenAiApi deepSeekApi = OpenAiApi.builder()
@@ -97,7 +97,7 @@ public class MultiModelConfig {
         return ChatClient.builder(deepSeekModel)
                 .defaultSystem(systemPromptResource)
                 .defaultAdvisors(
-                        safetyAdvisor,
+                        safeGuardAdvisor,
                         MessageChatMemoryAdvisor.builder(chatMemory).build(),
                         loggingAdvisor)
                 .build();

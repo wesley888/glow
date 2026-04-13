@@ -1,9 +1,9 @@
 package com.glow.config;
 
 import com.glow.advisor.LoggingAdvisor;
-import com.glow.advisor.SafetyAdvisor;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
+import org.springframework.ai.chat.client.advisor.SafeGuardAdvisor;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.embedding.EmbeddingModel;
@@ -20,13 +20,11 @@ import org.springframework.core.io.Resource;
  * <p>
  * Creates the primary {@link ChatClient} with default system prompt,
  * memory advisor, logging advisor, and safety advisor already wired in.
- * Individual services can build their own specialized clients from this
- * bean via {@code chatClient.mutate()}.
+ * Individual services can build their own specialized clients via {@code chatClient.mutate()}.
  */
 @Configuration
 public class AiConfig {
 
-    /** Default system prompt loaded from classpath:prompts/chat-system.st */
     @Value("classpath:prompts/chat-system.st")
     private Resource systemPromptResource;
 
@@ -38,12 +36,12 @@ public class AiConfig {
     @Primary
     ChatClient defaultChatClient(ChatModel chatModel,
                                  ChatMemory chatMemory,
-                                 SafetyAdvisor safetyAdvisor,
+                                 SafeGuardAdvisor safeGuardAdvisor,
                                  LoggingAdvisor loggingAdvisor) {
         return ChatClient.builder(chatModel)
                 .defaultSystem(systemPromptResource)
                 .defaultAdvisors(
-                        safetyAdvisor,
+                        safeGuardAdvisor,
                         MessageChatMemoryAdvisor.builder(chatMemory).build(),
                         loggingAdvisor
                 )

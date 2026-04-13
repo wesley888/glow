@@ -7,7 +7,6 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <!-- Spring Boot 4.0 requires JDK 21+; use 3.4.4 if 4.0 is unavailable in your env -->
         <version>3.4.4</version>
         <relativePath/>
     </parent>
@@ -23,7 +22,7 @@
         <spring-ai.version>1.0.0</spring-ai.version>
     </properties>
 
-    <!-- ===== Spring AI BOM ===== -->
+    <!-- ===== Spring AI BOM — manages all spring-ai dependency versions ===== -->
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -50,18 +49,18 @@
             <artifactId>reactor-core</artifactId>
         </dependency>
 
-        <!-- ===== Module 1 & 2 & 3 & 4 & 6 & 7 & 8 : Chat / Prompt / Output / Memory / Tools / Advisor / Agent ===== -->
-        <!-- Primary model: OpenAI (GPT-4o, DALL-E, Whisper, TTS) -->
+        <!-- ===== Module 1-4, 6-8: OpenAI (GPT-4o, DALL-E, Whisper, TTS) ===== -->
+        <!-- NOTE: artifact renamed in 1.0.0 GA: spring-ai-openai-spring-boot-starter → spring-ai-starter-model-openai -->
         <dependency>
             <groupId>org.springframework.ai</groupId>
-            <artifactId>spring-ai-openai-spring-boot-starter</artifactId>
+            <artifactId>spring-ai-starter-model-openai</artifactId>
         </dependency>
 
         <!-- Optional: Anthropic Claude — uncomment to enable -->
         <!--
         <dependency>
             <groupId>org.springframework.ai</groupId>
-            <artifactId>spring-ai-anthropic-spring-boot-starter</artifactId>
+            <artifactId>spring-ai-starter-model-anthropic</artifactId>
         </dependency>
         -->
 
@@ -69,7 +68,7 @@
         <!--
         <dependency>
             <groupId>org.springframework.ai</groupId>
-            <artifactId>spring-ai-ollama-spring-boot-starter</artifactId>
+            <artifactId>spring-ai-starter-model-ollama</artifactId>
         </dependency>
         -->
 
@@ -81,13 +80,23 @@
         </dependency>
 
         <!-- ===== Module 5: RAG — Vector Store ===== -->
-        <!-- Default: SimpleVectorStore (in-memory, no DB needed for dev) is auto-available via spring-ai-core -->
+        <!-- SimpleVectorStore lives in spring-ai-vector-store (separate module in 1.0.0 GA) -->
+        <dependency>
+            <groupId>org.springframework.ai</groupId>
+            <artifactId>spring-ai-vector-store</artifactId>
+        </dependency>
 
-        <!-- Production option: PgVector — uncomment when PostgreSQL + pgvector extension is ready -->
+        <!-- QuestionAnswerAdvisor lives in spring-ai-advisors-vector-store (separate module in 1.0.0 GA) -->
+        <dependency>
+            <groupId>org.springframework.ai</groupId>
+            <artifactId>spring-ai-advisors-vector-store</artifactId>
+        </dependency>
+
+        <!-- Production: PgVector — uncomment when PostgreSQL + pgvector extension is ready -->
         <!--
         <dependency>
             <groupId>org.springframework.ai</groupId>
-            <artifactId>spring-ai-pgvector-store-spring-boot-starter</artifactId>
+            <artifactId>spring-ai-starter-vector-store-pgvector</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -100,12 +109,11 @@
         </dependency>
         -->
 
-        <!-- ===== Module 10: MCP ===== -->
-        <!-- MCP Client — uncomment when MCP server is configured -->
+        <!-- ===== Module 10: MCP — uncomment when MCP server is configured ===== -->
         <!--
         <dependency>
             <groupId>org.springframework.ai</groupId>
-            <artifactId>spring-ai-mcp-client-spring-boot-starter</artifactId>
+            <artifactId>spring-ai-starter-mcp-client</artifactId>
         </dependency>
         -->
 
@@ -146,19 +154,5 @@
             </plugin>
         </plugins>
     </build>
-
-    <repositories>
-        <repository>
-            <id>spring-milestones</id>
-            <name>Spring Milestones</name>
-            <url>https://repo.spring.io/milestone</url>
-        </repository>
-        <repository>
-            <id>spring-snapshots</id>
-            <name>Spring Snapshots</name>
-            <url>https://repo.spring.io/snapshot</url>
-            <snapshots><enabled>true</enabled></snapshots>
-        </repository>
-    </repositories>
 
 </project>

@@ -64,7 +64,7 @@ glow:
   models:
     kimi:
       api-key: ${KIMI_API_KEY:}
-      base-url: https://api.moonshot.cn/v1
+      base-url: https://api.moonshot.cn
       model: moonshot-v1-8k          # options: moonshot-v1-8k / moonshot-v1-32k / moonshot-v1-128k
     deepseek:
       api-key: ${DEEPSEEK_API_KEY:}
